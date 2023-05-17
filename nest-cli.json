@@ -1,0 +1,11 @@
+{
+  "language": "ts",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "assets": [
+      {"include": "../config/*.yaml", "outDir": "./dist/config/configuration"},
+      {"include": "../config/secrets/*.yaml", "outDir": "./dist/config/configuration"}
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+app:
+  version: '1.0.0'
+  port: 9000
+  moment:
+    format: 'DD/MM/yyyy HH:mm:ss'
+    tz: 'America/Bogota'
+
+logging:
+  level: info
+  directory: logs/
+  hostnameAsFileName: false
+  filename: criptoinvestment.log
+  transport:
+    console: true
+    file: false
