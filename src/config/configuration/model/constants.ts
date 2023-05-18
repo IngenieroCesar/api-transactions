@@ -1,5 +1,3 @@
-
-
 /**
  * Constant value to search properties from envs
  */

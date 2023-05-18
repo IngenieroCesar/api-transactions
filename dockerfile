@@ -7,7 +7,7 @@ WORKDIR /home/node/app
 #Estableciendo usuario
 USER root
 # Clone repository
-RUN git clone -b develop https://github.com/IngenieroCesar/api-transactions.git
+RUN git clone -b master https://github.com/IngenieroCesar/api-transactions.git
 #Directorio de trabajo
 WORKDIR /home/node/app/api-transactions
 # Add secrets

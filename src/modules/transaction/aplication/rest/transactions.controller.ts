@@ -1,5 +1,3 @@
-
-
 import { Body, Controller, HttpCode, HttpStatus, Inject, Post, OnModuleInit } from '@nestjs/common';
 import { CommandExecutor } from '@src/modules/libs/domain/command/command-executor.interface';
 import { Transaction } from '@src/modules/transaction/domain/model/transaction.interface';

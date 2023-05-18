@@ -3,7 +3,8 @@
 /node_modules
 
 # config enviroment
-/config/secrets
+/config/secrets/secrets.yaml
+/config/config.yaml
 
 # Logs
 logs

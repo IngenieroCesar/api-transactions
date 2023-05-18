@@ -1,5 +1,3 @@
-
-
 import { Command } from '@modules/libs/domain/command/command.interface';
 
 export class UpdateTransactionCommand implements Command {
