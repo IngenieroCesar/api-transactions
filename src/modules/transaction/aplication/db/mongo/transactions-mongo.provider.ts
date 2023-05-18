@@ -33,4 +33,10 @@ export class TransactionsMongoProvider implements TransactionRepositoryPort {
 
 	}
 
+	get(transactionExternalId: string, value: number, createdAt: string): Observable<Transaction> {
+
+		return from(this.transactionModel.findOne({ accountExternalIdDebit: transactionExternalId, accountExternalIdCredit: transactionExternalId, value: value, createdAt: createdAt }).exec());
+
+	}
+
 }

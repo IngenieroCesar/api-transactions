@@ -1,8 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Inject, Post, OnModuleInit } from '@nestjs/common';
 import { CommandExecutor } from '@src/modules/libs/domain/command/command-executor.interface';
 import { Transaction } from '@src/modules/transaction/domain/model/transaction.interface';
-import { Observable } from 'rxjs';
-import { CreateTransactionDto } from './dtos/transactions.dtos';
+import { Observable, lastValueFrom } from 'rxjs';
+import { CreateTransactionDto, GetTransactionDto } from './dtos/transactions.dtos';
 import { ConsumerService } from '@src/config/kafka/consumer.service';
 import { ConfigService } from '@nestjs/config';
 import { KafkaConfig } from '@src/config/configuration/model/kafka-config';
@@ -18,6 +18,8 @@ export class TransactionsController implements OnModuleInit{
 
 	constructor(
 		@Inject('CreateTransaction') private createTransaction: CommandExecutor<Transaction>,
+		@Inject('UpdateTransactionStatus') private updateTransactionStatus: CommandExecutor<Transaction>,
+		@Inject('GetTransaction') private getTransaction: CommandExecutor<Transaction>,
 		private readonly consumerService: ConsumerService,
 		private readonly configurationService: ConfigService
 	) { }
@@ -39,8 +41,29 @@ export class TransactionsController implements OnModuleInit{
 		return this.createTransaction.execute(payload);
 	}
 
+	/**
+	 * @get is a POST method than return a transaction.
+	 * Mandatory fields to be received: transactionExternalId, value, createdAt.
+	 * @returns 200 status code when Transaction exist, 409 status when transaction is not registered in the system.
+	 *
+	 * @GetTransactionDto is a dto validator from rest request.
+	 * @returns 400 status code when some field is incorrect.
+	 */
+
+	@Post('/get')
+	@HttpCode(HttpStatus.OK)
+	get(@Body() payload: GetTransactionDto): Observable<Transaction> {
+		return this.getTransaction.execute({
+			transactionExternalId: payload.transactionExternalId, 
+			value: payload.value,
+			createdAt: payload.createdAt
+		});
+	}
+
 	async onModuleInit() : Promise<void> {
-		await this.consumerService.consume(
+	
+		this.consumerService.consume(
+			this.kafkaConfig.bindings.topicName.sendTransactionStatusApproved,
 			{topic: this.kafkaConfig.bindings.topicName.sendTransactionStatusApproved},
 			{
 				eachMessage: async ({topic, partition, message}) => {
@@ -49,10 +72,12 @@ export class TransactionsController implements OnModuleInit{
 						topic: topic.toString(),
 						partition: partition.toString()
 					});
+					await lastValueFrom(this.updateTransactionStatus.execute(JSON.parse(message.value.toString())));
 				}
 			});
 
-		await this.consumerService.consume(
+		this.consumerService.consume(
+			this.kafkaConfig.bindings.topicName.sendTransactionStatusRejected,
 			{topic: this.kafkaConfig.bindings.topicName.sendTransactionStatusRejected},
 			{
 				eachMessage: async ({topic, partition, message}) => {
@@ -61,6 +86,7 @@ export class TransactionsController implements OnModuleInit{
 						topic: topic.toString(),
 						partition: partition.toString()
 					});
+					await lastValueFrom(this.updateTransactionStatus.execute(JSON.parse(message.value.toString())));
 				}
 			});
 	}

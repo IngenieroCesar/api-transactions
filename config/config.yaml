@@ -30,5 +30,3 @@ kafka:
       sendTransactionCreated: 'sendTransactionCreated'
       sendTransactionStatusApproved: 'sendTransactionStatusApproved'
       sendTransactionStatusRejected: 'sendTransactionStatusRejected'
-    groupId:
-      yapeFlow: 'yapeFlow'

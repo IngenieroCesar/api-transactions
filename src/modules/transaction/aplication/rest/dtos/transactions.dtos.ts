@@ -19,3 +19,35 @@ export class CreateTransactionDto {
 	readonly value: number;
 
 }
+
+class TransactionType {
+    @IsString()
+	readonly name: string;
+}
+
+class TransactionStatus {
+    @IsString()
+	readonly name: string;
+}
+
+export class GetTransactionDto {
+
+    @IsNotEmpty()
+    @IsString()
+	readonly transactionExternalId: string;
+
+	@IsNotEmpty()
+    readonly transactionType: TransactionType;
+
+	@IsNotEmpty()
+	readonly transactionStatus: TransactionStatus;
+
+	@IsNotEmpty()
+    @IsNumber()
+	readonly value: number;
+
+    @IsNotEmpty()
+    @IsString()
+	readonly createdAt: string;
+
+}

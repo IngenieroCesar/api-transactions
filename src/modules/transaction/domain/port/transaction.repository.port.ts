@@ -16,9 +16,15 @@ export interface TransactionRepositoryPort {
     update(project: Transaction): Observable<Transaction>;
 
     /**
-     * @findById is a definition to find a Projects by id on a system.
+     * @findById is a definition to find a Transaction by id on a system.
      * @returns 
      */
     findById(id: string): Observable<Transaction>;
+
+    /**
+     * @get is a definition to find a Transaction on a system.
+     * @returns 
+     */
+    get(transactionExternalId: string, value: number, createdAt: string): Observable<Transaction>;
 
 }

@@ -30,7 +30,7 @@ export class UpdateTransactionStatus implements CommandExecutor<Transaction> {
 		 * Update Transaction status
 		 */
 
-		const findProject = (_command: UpdateTransactionCommand): Observable<Transaction> => {
+		const findTransaction = (_command: UpdateTransactionCommand): Observable<Transaction> => {
 			return this.transactionsRepository.findById(_command.id).pipe(
 				map(transaction => {
 					if (!transaction) {
@@ -54,7 +54,7 @@ export class UpdateTransactionStatus implements CommandExecutor<Transaction> {
 		};
 
 		return of(command).pipe(
-			concatMap( c => findProject(c).pipe(
+			concatMap( c => findTransaction(c).pipe(
 				concatMap( t => updateTransactionStatus(t, c)),
 			)),
 		);
