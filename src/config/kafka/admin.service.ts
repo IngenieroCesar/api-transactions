@@ -6,7 +6,7 @@ import {
 import { Observable, from } from 'rxjs';
 import { Kafka, Admin, PartitionOffset } from 'kafkajs';
 import { ConfigService } from '@nestjs/config';
-import { KafkaConfig, SecKafkaConfig } from '@src/config/configuration/model/kafka-config';
+import { KafkaConfig } from '@src/config/configuration/model/kafka-config';
 import { ConfigValue } from '@src/config/configuration/model/constants';
 
 /**
@@ -19,13 +19,9 @@ export class AdminService implements OnModuleInit, OnApplicationShutdown {
 	constructor(private readonly configurationService: ConfigService){}
 
 	private readonly kafkaConfig: KafkaConfig = this.configurationService.get<KafkaConfig>(ConfigValue.STREAMS_KAFKA_ENV_VALUE);
-	private readonly secKafkaConfig: SecKafkaConfig = this.configurationService.get<SecKafkaConfig>(ConfigValue.SEC_STREAMS_KAFKA_ENV_VALUE);
 
 	private readonly kafka = new Kafka({
-		clientId: this.kafkaConfig.clientId,
 		brokers: [`${this.kafkaConfig.url}:${this.kafkaConfig.port}`],
-		sasl: { username: this.secKafkaConfig.key, password: this.secKafkaConfig.secret, mechanism: this.secKafkaConfig.mechanism },
-		ssl: true
 	});
 
 	private readonly admin: Admin = this.kafka.admin();

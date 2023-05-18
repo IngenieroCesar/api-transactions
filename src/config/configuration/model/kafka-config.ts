@@ -1,5 +1,4 @@
 export class KafkaConfig {
-	clientId: string;
 	url: string;
 	port: number;
 	bindings: {
@@ -12,10 +11,4 @@ export class KafkaConfig {
       yapeFlow: string;
     };
   };
-}
-
-export class SecKafkaConfig {
-	key: string;
-	secret: string;
-	mechanism: any;
 }
