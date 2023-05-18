@@ -6,12 +6,10 @@ RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 #Estableciendo usuario
 USER root
-# Generate enviroments
-ARG TOKEN_GIT
 # Clone repository
-RUN git clone -b develop https://${TOKEN_GIT}@github.com/IngenieroCesar/api-criptoinvestment.git
+RUN git clone -b develop https://github.com/IngenieroCesar/api-transactions.git
 #Directorio de trabajo
-WORKDIR /home/node/app/api-criptoinvestment
+WORKDIR /home/node/app/api-transactions
 # Add secrets
 COPY config/secrets ./config/secrets
 #NestJs Instalation
