@@ -5,5 +5,9 @@
  */
 export class ConfigValue {
 	static readonly MOMENT_ENV_VALUE = 'app.moment';
-	static readonly SEC_CRYPTO_CRIPTOINVESTMENT_ENV_VALUE = 'sec.app.crypto';
+	static readonly SEC_CRYPTO_ENV_VALUE = 'sec.app.crypto';
+	static readonly STREAMS_KAFKA_ENV_VALUE = 'kafka';
+	static readonly SEC_STREAMS_KAFKA_ENV_VALUE = 'sec.kafka';
+	static readonly MONGODB_YAPECHALLENGE_ENV_VALUE = 'db.yapechallenge.mongo';
+	static readonly SEC_YAPECHALLENGE_MONGODB_ENV_VALUE = 'sec.db.yapechallenge.mongo';
 }
