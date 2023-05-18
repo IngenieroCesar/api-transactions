@@ -13,3 +13,23 @@ logging:
   transport:
     console: true
     file: false
+
+db:
+  yapechallenge:
+    mongo: 
+      url: 66.94.120.188:27017
+      database: yapechallenge
+      collection:
+        transactions: transactions
+
+kafka:
+  clientId: ''
+  url: ''
+  port: ''
+  bindings:
+    topicName:
+      sendTransactionCreated: 'sendTransactionCreated'
+      sendTransactionStatusApproved: 'sendTransactionStatusApproved'
+      sendTransactionStatusRejected: 'sendTransactionStatusRejected'
+    groupId:
+      yapeFlow: 'yapeFlow'

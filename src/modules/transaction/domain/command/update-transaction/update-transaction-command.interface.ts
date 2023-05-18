@@ -1,14 +1,13 @@
 
 
 import { Command } from '@modules/libs/domain/command/command.interface';
-import { Transaction } from '@src/modules/transaction/domain/model/transaction.interface';
 
-export class UpdateProjectCommand implements Command {
+export class UpdateTransactionCommand implements Command {
 
-	constructor(id:string, transaction: Transaction){
+	constructor(id: string, status: 'pending' | 'approved' | 'rejected'){
 		this.id = id;
-		this.transaction = transaction;
+		this.status = status;
 	}
 	id: string;
-	transaction: Transaction;
+	status: 'pending' | 'approved' | 'rejected';
 }

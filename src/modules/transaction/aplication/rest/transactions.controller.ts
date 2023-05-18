@@ -1,10 +1,14 @@
 
 
-import { Body, Controller, HttpCode, HttpStatus, Inject, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Inject, Post, OnModuleInit } from '@nestjs/common';
 import { CommandExecutor } from '@src/modules/libs/domain/command/command-executor.interface';
 import { Transaction } from '@src/modules/transaction/domain/model/transaction.interface';
 import { Observable } from 'rxjs';
 import { CreateTransactionDto } from './dtos/transactions.dtos';
+import { ConsumerService } from '@src/config/kafka/consumer.service';
+import { ConfigService } from '@nestjs/config';
+import { KafkaConfig } from '@src/config/configuration/model/kafka-config';
+import { ConfigValue } from '@src/config/configuration/model/constants';
 
 /**
  * @TransactionsController is responsible for handling incoming requests and returning responses to the transaction.
@@ -12,11 +16,15 @@ import { CreateTransactionDto } from './dtos/transactions.dtos';
 
 @Controller('transactions')
 
-export class TransactionsController {
+export class TransactionsController implements OnModuleInit{
 
 	constructor(
 		@Inject('CreateTransaction') private createTransaction: CommandExecutor<Transaction>,
+		private readonly consumerService: ConsumerService,
+		private readonly configurationService: ConfigService
 	) { }
+
+	private readonly kafkaConfig: KafkaConfig = this.configurationService.get<KafkaConfig>(ConfigValue.STREAMS_KAFKA_ENV_VALUE);
 
 	/**
 	 * @create is a POST method than create a transaction.
@@ -31,6 +39,32 @@ export class TransactionsController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	create(@Body() payload: CreateTransactionDto): Observable<Transaction> {
 		return this.createTransaction.execute(payload);
+	}
+
+	async onModuleInit() : Promise<void> {
+		await this.consumerService.consume(
+			{topic: this.kafkaConfig.bindings.topicName.sendTransactionStatusApproved},
+			{
+				eachMessage: async ({topic, partition, message}) => {
+					console.log({
+						value: message.value.toString(),
+						topic: topic.toString(),
+						partition: partition.toString()
+					});
+				}
+			});
+
+		await this.consumerService.consume(
+			{topic: this.kafkaConfig.bindings.topicName.sendTransactionStatusRejected},
+			{
+				eachMessage: async ({topic, partition, message}) => {
+					console.log({
+						value: message.value.toString(),
+						topic: topic.toString(),
+						partition: partition.toString()
+					});
+				}
+			});
 	}
 
 }

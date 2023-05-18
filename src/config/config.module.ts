@@ -8,11 +8,17 @@ import configuration from '@config/configuration/configuration';
 import { AppLoggerService } from './logger/app.logger.service';
 import secretsConfiguration from '@config/configuration/secrets-configuration';
 import { AppCryptoService } from '@src/config/crypto/app.crypto.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { YapeChallengeMongooseConfigService } from '@src/config/mongoose/yapechallenge-mongoose-config.service';
+
 /**
  * General module definition, setup configuration for Metrics, Logger and Config loader
  */
 @Module({
 	imports: [
+		MongooseModule.forRootAsync({
+			useClass: YapeChallengeMongooseConfigService,
+		}),
 		TerminusModule,
 		ConfigModule.forRoot({
 			load: [configuration, secretsConfiguration],

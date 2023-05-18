@@ -11,7 +11,7 @@ export class AppCryptoService {
 
 	constructor(private readonly configurationService: ConfigService){}
 
-	private readonly secCryptoConfig: SecCryptoConfig = this.configurationService.get<SecCryptoConfig>(ConfigValue.SEC_CRYPTO_CRIPTOINVESTMENT_ENV_VALUE);
+	private readonly secCryptoConfig: SecCryptoConfig = this.configurationService.get<SecCryptoConfig>(ConfigValue.SEC_CRYPTO_ENV_VALUE);
 
 	encode( object: object ): string {
 		const data = JSON.stringify(object);

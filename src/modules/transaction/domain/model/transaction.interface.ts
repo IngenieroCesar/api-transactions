@@ -1,5 +1,3 @@
-
-
 import { Model } from '@src/modules/libs/domain/model/model.interface';
 
 export interface Transaction extends Model {
