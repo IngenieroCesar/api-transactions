@@ -4,7 +4,6 @@
 
 # config enviroment
 /config/secrets/secrets.yaml
-/config/config.yaml
 
 # Logs
 logs
