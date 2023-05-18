@@ -67,11 +67,6 @@ export class TransactionsController implements OnModuleInit{
 			{topic: this.kafkaConfig.bindings.topicName.sendTransactionStatusApproved},
 			{
 				eachMessage: async ({topic, partition, message}) => {
-					console.log({
-						value: message.value.toString(),
-						topic: topic.toString(),
-						partition: partition.toString()
-					});
 					await lastValueFrom(this.updateTransactionStatus.execute(JSON.parse(message.value.toString())));
 				}
 			});
@@ -81,11 +76,6 @@ export class TransactionsController implements OnModuleInit{
 			{topic: this.kafkaConfig.bindings.topicName.sendTransactionStatusRejected},
 			{
 				eachMessage: async ({topic, partition, message}) => {
-					console.log({
-						value: message.value.toString(),
-						topic: topic.toString(),
-						partition: partition.toString()
-					});
 					await lastValueFrom(this.updateTransactionStatus.execute(JSON.parse(message.value.toString())));
 				}
 			});

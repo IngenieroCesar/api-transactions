@@ -45,8 +45,6 @@ export class CreateTransaction implements CommandExecutor<Transaction> {
 				createdAt: moment().tz(this.momentConfig.tz).format(this.momentConfig.format),
 				updatedAt: moment().tz(this.momentConfig.tz).format(this.momentConfig.format)
 			};
-
-			console.log(transaction);
 			
 			return of(transaction).pipe(
 				tap(() => this.logger.log(`Transaction with id: [${transaction.id}] created succesfully.`))
