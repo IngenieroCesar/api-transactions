@@ -17,14 +17,14 @@ logging:
 db:
   yapechallenge:
     mongo: 
-      url: 127.0.0.1:27017
+      url: mongo:27017
       database: yapechallenge
       collection:
         transactions: transactions
 
 kafka:
-  url: localhost
-  port: 9092
+  url: broker
+  port: 29092
   bindings:
     topicName:
       sendTransactionCreated: 'sendTransactionCreated'
