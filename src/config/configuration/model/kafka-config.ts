@@ -7,8 +7,5 @@ export class KafkaConfig {
       sendTransactionStatusApproved: string;
       sendTransactionStatusRejected: string;
     };
-    groupId: {
-      yapeFlow: string;
-    };
   };
 }
