@@ -3,7 +3,7 @@ export class MongodbConfing {
 	database: string;
 	url: string;
 	collection: {
-        loan: string
+			transactions: string
     };
 }
 

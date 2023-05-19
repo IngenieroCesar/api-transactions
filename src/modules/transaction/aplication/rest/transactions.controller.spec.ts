@@ -13,9 +13,9 @@ import { UpdateTransactionStatus } from '@src/modules/transaction/usecases/updat
 
 
 /**
- * Unit test for MCA LoanController
+ * Unit test for TransactionController
  */
-describe('LoanController', () => {
+describe('TransactionController', () => {
 	let configService: ConfigService;
 	let port: TransactionRepositoryPort;
 	let controller: TransactionsController;
@@ -84,11 +84,11 @@ describe('LoanController', () => {
 				'createdAt': '18/05/2023 19:34:31'
 			};
 
-			const spyReportLoanState = jest.spyOn(getTransaction, 'execute').mockReturnValue(of(mockTransaction));
+			const spyReportTransactionState = jest.spyOn(getTransaction, 'execute').mockReturnValue(of(mockTransaction));
 			const result: Transaction = await firstValueFrom(controller.get( command ));
 
 			expect(result).toEqual(mockTransaction);
-			expect(spyReportLoanState).toHaveBeenCalled();
+			expect(spyReportTransactionState).toHaveBeenCalled();
 		});
 	});
 

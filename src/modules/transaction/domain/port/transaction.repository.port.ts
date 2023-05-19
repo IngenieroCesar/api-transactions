@@ -11,7 +11,7 @@ export interface TransactionRepositoryPort {
 
     /**
      * @updateState is a definition to update Transaction state on system.
-     * @returns Observable<Loan>
+     * @returns Observable<Transaction>
      */
     update(project: Transaction): Observable<Transaction>;
 
