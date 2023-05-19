@@ -1,73 +1,92 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# NestJS API TRANSACTIONS
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![License](https://img.shields.io/github/license/saluki/nestjs-template.svg)](https://github.com/saluki/nestjs-template/blob/master/LICENSE)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 1. Getting started
 
-## Description
+### 1.1 Requirements
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Before starting, make sure you have at least those components on your workstation:
 
-## Installation
+- NodeJs
+- Kafka Broker
+- Database MongoDB
+- Docker
 
-```bash
-$ npm install
+### 1.2 Project configuration
+
+Start by cloning this project on your workstation.
+
+``` sh
+git clone https://github.com/IngenieroCesar/api-transactions
 ```
 
-## Running the app
 
-```bash
-# development
-$ npm run start
+### 1.3 Project Docker Image
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+``` sh
+docker pull ghcr.io/ingenierocesar/api-transactions:v0.0.1
 ```
 
-## Test
+## 2. Project structure
 
-```bash
-# unit tests
-$ npm run test
+The project has been developed with: 
+- Modular/clean architecture (Hexagonal)
+- Command Query Responsibility Segregation (CQRS) pattern.
 
-# e2e tests
-$ npm run test:e2e
+## 3. REST API
 
-# test coverage
-$ npm run test:cov
-```
+The REST API to the example app is described below.
 
-## Support
+## Create Transaction
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Request
 
-## Stay in touch
+`POST /transactions/`
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Body: {
+  "accountExternalIdDebit": "Guid",
+  "accountExternalIdCredit": "Guid",
+  "tranferTypeId": 1,
+  "value": 1200
+}
 
-## License
+### Response
 
-Nest is [MIT licensed](LICENSE).
+    HTTP/1.1 204 NO CONTENT
+
+## Get Transaction
+
+### Request
+
+`POST /transactions/get/`
+
+Body: {
+  "transactionExternalId": "ad",
+  "transactionType": {
+    "name": ""
+  },
+  "transactionStatus": {
+    "name": ""
+  },
+  "value": 120,
+  "createdAt": "18/05/2023 14:25:59"
+}
+
+
+### Response
+
+    HTTP/1.1 200 OK
+
+Body: {
+    "_id": "6466c41740a1793254d09e82",
+    "id": "ce9ffd6f-1bb4-4e1c-a55e-4eb01e2cd6e1",
+    "accountExternalIdDebit": "Guid",
+    "accountExternalIdCredit": "Guid",
+    "tranferTypeId": 1,
+    "value": 1200,
+    "status": "rejected",
+    "createdAt": "18/05/2023 19:34:31",
+    "updatedAt": "18/05/2023 19:34:32",
+    "__v": 0
+}
