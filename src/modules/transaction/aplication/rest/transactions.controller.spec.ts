@@ -1,23 +1,15 @@
-import { ProjectsController } from '../projects.controller';
-import {Collection, Loan} from '@src/modules/mca/domain/model/loan.interface';
+import { TransactionsController } from './transactions.controller';
+import { Transaction } from '@src/modules/transaction/domain/model/transaction.interface';
 import { firstValueFrom, of } from 'rxjs';
-import { LoanRepositoryPort } from '@src/modules/mca/domain/port/loan.repository.port';
-import { LoanProducerPort } from '@src/modules/mca/domain/port/loan.producer.port';
+import { TransactionRepositoryPort } from '@src/modules/transaction/domain/port/transaction.repository.port';
 import { ConfigService } from '@nestjs/config';
-import { CreateLoan } from '@src/modules/mca/usecases/create-loan/create-loan.service';
-import { UpdateLoanState } from '@src/modules/mca/usecases/update-loan-state/update-loan-state.service';
-import { UpdateLoanStateDto, GetLoanStateDto, CreateLoanDto } from '../dtos/projects.dtos';
-import { ReportSell } from '@src/modules/mca/usecases/report-sell/report-sell.service';
-import { ExternalSellProvider } from '../../api/mo/external-sell.provider';
-import { LoanReportSell } from '@src/modules/mca/application/api/mo/model/loanReportSell.interface';
-import { SellDto } from '../dtos/sell.dtos';
-import { Sell } from '@src/modules/mca/domain/model/sell.interface';
-import { MerchantsPort } from '@src/modules/mca/domain/port/merchants-api.port';
-import { LoanExternalPort } from '@src/modules/mca/domain/port/loan.external.port';
-import { GetSellState } from '@src/modules/mca/usecases/get-sell-state/get-sell-state.service';
-import { GetSellStatus } from '@src/modules/mca/application/rest/loans/dtos/GetSellState.dtos';
-import { GetLoanState } from '@src/modules/mca/usecases/get-loan-state/get-loan-state.service';
-import { Disburse } from '@src/modules/mca/usecases/disburse/disburse.service';
+import { CreateTransaction } from '@src/modules/transaction/usecases/create-transaction/create-transaction.service';
+import { GetTransaction } from '@src/modules/transaction/usecases/get-transaction/get-transaction.service';
+import { CreateTransactionDto, GetTransactionDto} from './dtos/transactions.dtos';
+import { ProducerService } from '@src/config/kafka/producer.service';
+import { ConsumerService } from '@src/config/kafka/consumer.service';
+import { UpdateTransactionStatus } from '@src/modules/transaction/usecases/update-transaction-status/update-transaction-status.service';
+
 
 
 /**
@@ -25,16 +17,20 @@ import { Disburse } from '@src/modules/mca/usecases/disburse/disburse.service';
  */
 describe('LoanController', () => {
 	let configService: ConfigService;
-	let port: LoanRepositoryPort;
-	let controller: ProjectsController;
-	let createLoan: CreateLoan;
-	let updateLoanState: UpdateLoanState;
+	let port: TransactionRepositoryPort;
+	let controller: TransactionsController;
+	let producer: ProducerService;
+	let consumer: ConsumerService;
+	let createTransaction: CreateTransaction;
+	let updateTransactionStatus: UpdateTransactionStatus;
+	let getTransaction: GetTransaction;
 
 	beforeEach(() => {
 		configService = new ConfigService();
-		createLoan = new CreateLoan(port,configService);
-		updateLoanState = new UpdateLoanState(port, configService);
-		controller = new ProjectsController(createLoan, updateLoanState);
+		createTransaction = new CreateTransaction(port,configService, producer);
+		updateTransactionStatus = new UpdateTransactionStatus(port,configService);
+		getTransaction = new GetTransaction(port);
+		controller = new TransactionsController(createTransaction, updateTransactionStatus, getTransaction, consumer, configService );
 	});
 
 	it('should be defined', () => {
@@ -43,141 +39,56 @@ describe('LoanController', () => {
 
 	});
 
-	const mockLoan: Loan = {
-		'id': 'idLoanReference',
-		'merchant': {id:'merchantIdReference'},
-		'amount': 123.9,
-		'currency': 'COP',
-		'creationDate': 'We042022 063742',
-		'updateDate': 'We042022 063742',
-		'collections': [],
+	const mockTransaction: Transaction = {
+		'id': 'ce9ffd6f-1bb4-4e1c-a55e-4eb01e2cd6e1',
+		'accountExternalIdDebit': 'Guid',
+		'accountExternalIdCredit': 'Guid',
+		'tranferTypeId': 1,
+		'value': 1200,
+		'status': 'rejected',
+		'createdAt': '18/05/2023 19:34:31',
+		'updatedAt': '18/05/2023 19:34:32'
 	};
 
-	describe('create loan', () => {
+	describe('create transaction', () => {
 
-		it('should return an loan', async () => {
+		it('should return an transaction', async () => {
 
-			const command: CreateLoanDto = {
-				'id': 'idLoanReference',
-				'merchant': '2345',
-				'amount': 123.9,
-				'currency': 'COP'};
+			const command: CreateTransactionDto = {
+				'accountExternalIdDebit': 'Guid',
+				'accountExternalIdCredit': 'Guid',
+				'tranferTypeId': 1,
+				'value': 1200
+			};
 
-			const spyCreateLoan = jest.spyOn(createLoan, 'execute').mockReturnValue(of(mockLoan));
-			const result: Loan = await firstValueFrom(controller.create(command));
+			const spyCreateTransaction = jest.spyOn(createTransaction, 'execute').mockReturnValue(of(mockTransaction));
+			const result: Transaction = await firstValueFrom(controller.create(command));
 
-			expect(result).toEqual(mockLoan);
-			expect(spyCreateLoan).toHaveBeenCalled();
+			expect(result).toEqual(mockTransaction);
+			expect(spyCreateTransaction).toHaveBeenCalled();
 		});
 	});
 
-	describe('update loan state', () => {
-		it('should return an loan', async () => {
 
-			const mockParam = 'idLoanReference';
-			const mockBody: UpdateLoanStateDto = { state: 'ACTIVE' };
-
-			const spyUpdateLoanState = jest.spyOn(updateLoanState, 'execute').mockReturnValue(of(mockLoan));
-			const result: Loan = await firstValueFrom(controller.updateState(mockParam, mockBody));
-
-			expect(result).toEqual(mockLoan);
-			expect(spyUpdateLoanState).toHaveBeenCalled();
-		});
-	});
-
-	describe('report sell state', () => {
-		it('should return an loan', async () => {
-
-			const payload: SellDto = {
-				id: 'idSell',
-				amount: 123
-			};
-			const mockSell: Sell = {
-				payuReference: 'idSell',
-				externalReference: '5',
-				amount: 123,
-				collectAmount: 12,
-				loan: mockLoan,
-				detail: {
-					LOAN_CAPITAL: 1,
-					LOAN_INTEREST: 2,
-					LOAN_ADMON_FEE: 3,
-					LOAN_IVA_ADMON_FEE: 4,
-					LOAN_OVERDUE_INTEREST: 5,
-					LOAN_COLLECTION_MANAGEMENT: 6,
-					LOAN_IVA_COLLECTION_MANAGEMENT: 7
-				}
-			};
-			const resultLoan: LoanReportSell = {
-				LOAN_CAPITAL: 1,
-				LOAN_INTEREST: 2,
-				LOAN_ADMON_FEE: 3,
-				LOAN_IVA_ADMON_FEE: 4,
-				LOAN_OVERDUE_INTEREST: 5,
-				LOAN_COLLECTION_MANAGEMENT: 6,
-				LOAN_IVA_COLLECTION_MANAGEMENT: 7
+	describe('get transaction', () => {
+		it('should return transaction', async () => {
+			const command: GetTransactionDto = {
+				'transactionExternalId': 'Guid',
+				'transactionType': {
+					'name': ''
+				},
+				'transactionStatus': {
+					'name': ''
+				},
+				'value': 1200,
+				'createdAt': '18/05/2023 19:34:31'
 			};
 
-			const mockParam = 'idLoanReference';
-			const spyReportsell = jest.spyOn(reportsell, 'execute').mockReturnValue(of(mockSell));
-			const result: LoanReportSell = await firstValueFrom(controller.getPercentage(payload, mockParam));
+			const spyReportLoanState = jest.spyOn(getTransaction, 'execute').mockReturnValue(of(mockTransaction));
+			const result: Transaction = await firstValueFrom(controller.get( command ));
 
-			expect(result).toEqual(resultLoan);
-			expect(spyReportsell).toHaveBeenCalled();
-		});
-	});
-
-	describe('consult a sell state', () => {
-		it('should a sell state', async () => {
-			const mockCollection: Collection = {
-				payuReference: 'payuReference',
-				externalReference: 'externalReference',
-				amount: 123,
-				date: '10062022 151351',
-				state: 'CONFIRMED',
-			};
-			const resultLoan: GetSellStatus = {
-				status: 'CONFIRMED'
-			};
-
-			const mockParamLoanId = 'idLoanReference';
-			const mockParamSellId = 'idLoanReference';
-			const spyReportSellStatus = jest.spyOn(getSellState, 'execute').mockReturnValue(of(mockCollection));
-			const result: GetSellStatus = await firstValueFrom(controller.consultSellState(mockParamLoanId,mockParamSellId));
-
-			expect(result).toEqual(resultLoan);
-			expect(spyReportSellStatus).toHaveBeenCalled();
-		});
-	});
-
-	describe('consult loan state', () => {
-		it('should return loan state', async () => {
-			const mockLoanState = 'REQUESTED';
-			const resultLoan: GetLoanStateDto = {
-				state: 'REQUESTED'
-			};
-
-			const mockParamLoanId = 'idLoanReference';
-			const spyReportLoanState = jest.spyOn(getLoanState, 'execute').mockReturnValue(of(mockLoanState));
-			const result: GetLoanStateDto = await firstValueFrom(controller.consultLoanState( mockParamLoanId ));
-
-			expect(result).toEqual(resultLoan);
+			expect(result).toEqual(mockTransaction);
 			expect(spyReportLoanState).toHaveBeenCalled();
-		});
-	});
-
-	describe('start disbursement process', () => {
-
-		it('should return an disbursement Id', async () => {
-
-			const country = 'COL';
-			const disburseId = '123456789';
-
-			const spyDisburse = jest.spyOn(disburse, 'execute').mockReturnValue(of(disburseId));
-			const result: string = await firstValueFrom(controller.disbursement(country));
-
-			expect(result).toEqual(disburseId);
-			expect(spyDisburse).toHaveBeenCalled();
 		});
 	});
 
